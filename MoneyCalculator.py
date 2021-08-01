@@ -2,28 +2,6 @@ import datetime
 import datetime as dt
 
 
-def get_today_cash_remained(currency):
-    total_today = cash_calculator.get_today_stats()
-    if total_today == 0:
-        print("Денег нет, держись")
-    else:
-        if currency == 'usd':
-            if total_today < 0:
-                print(f"Денег нет, держись: твой долг - {round(total_today / cash_calculator.USD_RATE, 2), currency}")
-            else:
-                print(f"На сегодня осталось {round(total_today / cash_calculator.USD_RATE, 2)} {currency}")
-        elif currency == 'eur':
-            if total_today < 0:
-                print(f"Денег нет, держись: твой долг - {round(total_today / cash_calculator.EUR_RATE, 2), currency}")
-            else:
-                print(f"На сегодня осталось {round(total_today / cash_calculator.EUR_RATE, 2)} {currency}")
-        else:
-            if total_today < 0:
-                print(f"Денег нет, держись: твой долг - {total_today, currency}")
-            else:
-                print(f"На сегодня осталось {total_today} {currency}")
-
-
 class Calculator:
     def __init__(self, limit):
         self.limit = limit
@@ -64,6 +42,45 @@ class CashCalculator(Calculator):
         super(CashCalculator, self).__init__(limit)
         self.USD_RATE = 73.75
         self.EUR_RATE = 87.11
+        self.RUB_RATE = 1.0
+
+    def get_today_cash_remained(self, currency):
+        total_today = cash_calculator.get_today_stats()
+        currencies = {
+            'eur': ('Euro', self.EUR_RATE),
+            'usd': ('USD', self.USD_RATE),
+            'rub': ('руб', self.RUB_RATE),
+        }
+        currency_name, currency_rate = currencies[currency]
+
+        today_remained_in_currency = round(total_today / currency_rate, 2)
+
+        if today_remained_in_currency > 0:
+            return f'На сегодня осталось {today_remained_in_currency} {currency_name}'
+        elif total_today == 0:
+            return f'Денег нет, держись'
+        else:
+            return f'Денег нет, держись: твой долг - {today_remained_in_currency} {currency_name}'
+        # if total_today == 0:
+        #     print("Денег нет, держись")
+        # else:
+        #     if currency == 'usd':
+        #         if total_today < 0:
+        #             print(
+        #                 f"Денег нет, держись: твой долг - {round(total_today / cash_calculator.USD_RATE, 2), currency}")
+        #         else:
+        #             print(f"На сегодня осталось {round(total_today / cash_calculator.USD_RATE, 2)} {currency}")
+        #     elif currency == 'eur':
+        #         if total_today < 0:
+        #             print(
+        #                 f"Денег нет, держись: твой долг - {round(total_today / cash_calculator.EUR_RATE, 2), currency}")
+        #         else:
+        #             print(f"На сегодня осталось {round(total_today / cash_calculator.EUR_RATE, 2)} {currency}")
+        #     else:
+        #         if total_today < 0:
+        #             print(f"Денег нет, держись: твой долг - {total_today, currency}")
+        #         else:
+        #             print(f"На сегодня осталось {total_today} {currency}")
 
 
 # создадим калькулятор денег с дневным лимитом 1000
@@ -75,11 +92,10 @@ cash_calculator.add_record(Record(amount=145, comment="кофе"))
 # и к этой записи тоже дата должна добавиться автоматически
 cash_calculator.add_record(Record(amount=300, comment="Серёге за обед"))
 # а тут пользователь указал дату, сохраняем её
-cash_calculator.add_record(Record(amount=3000, comment="бар в Танин др", date="21.07.2021"))
+cash_calculator.add_record(Record(amount=3000, comment="бар в Танин др", date="25.07.2021"))
 
-get_today_cash_remained("eur")
+print(cash_calculator.get_today_cash_remained("eur"))
 # должно напечататься
 # На сегодня осталось 555 руб
 
 print(f"{cash_calculator.get_week_stats()} руб")
-
